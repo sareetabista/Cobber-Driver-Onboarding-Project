@@ -5,19 +5,9 @@ import {
   PHONE_REGEX,
   USER_ROLE,
 } from 'src/common/constants/user.constants';
+import { Types } from 'mongoose';
 
-export class VehicleDetails {
-  @Prop()
-  name: string;
-
-  @Prop()
-  number: string;
-
-  @Prop()
-  model: string;
-}
-
-const VehicleDetailsSchema = SchemaFactory.createForClass(VehicleDetails);
+export type UserDocument = User & Document;
 
 @Schema({ timestamps: true })
 export class User {
@@ -36,12 +26,13 @@ export class User {
   @Prop({
     // required: true,
     unique: true,
+    sparse: true,
     match: PHONE_REGEX,
   })
   phone: string;
 
-  @Prop({ type: VehicleDetailsSchema })
-  vehicleDetails: VehicleDetails;
+  @Prop({ type: Types.ObjectId, ref: 'Vehicle' })
+  vehicleDetails: Types.ObjectId;
 
   @Prop({ required: true, minlength: 8 })
   password: string;
