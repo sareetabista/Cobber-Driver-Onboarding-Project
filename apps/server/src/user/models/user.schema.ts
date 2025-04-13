@@ -58,13 +58,13 @@ export class User {
       FORM_STATUS.INITIATED,
       FORM_STATUS.COMPLETED,
     ],
-    default: 'not_started',
+    default: FORM_STATUS.NOT_STARTED,
   })
   status: string;
 
   @Prop({
     enum: [USER_ROLE.SUPER_ADMIN, USER_ROLE.DRIVER],
-    default: 'driver',
+    default: USER_ROLE.DRIVER,
   })
   role: string;
 
