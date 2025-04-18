@@ -4,7 +4,7 @@ import {
   FORM_STATUS,
   PHONE_REGEX,
   USER_ROLE,
-} from 'src/common/constants/user.constants';
+} from 'src/shared/constants/user.constants';
 import { Types } from 'mongoose';
 
 export type UserDocument = User & Document;
