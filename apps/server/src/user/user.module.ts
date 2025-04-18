@@ -30,4 +30,4 @@ import { JwtStrategy } from 'src/shared/strategy/jwt.strategy';
   ],
   exports: [UserService],
 })
-export class UserModule { }
+export class UserModule {}

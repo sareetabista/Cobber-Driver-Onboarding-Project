@@ -6,12 +6,12 @@ import { AuthGuard } from '@nestjs/passport';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) { }
+  constructor(private readonly userService: UserService) {}
 
   @ApiBody({ type: SubmitFormDto })
-  @Post("/submit-form")
-  @UseGuards(AuthGuard("jwt"))
+  @Post('/submit-form')
+  @UseGuards(AuthGuard('jwt'))
   async uploadDocumemt(@Body() userDetails: SubmitFormDto) {
-    return await this.userService.saveUserDetails(userDetails)
+    return await this.userService.saveUserDetails(userDetails);
   }
 }

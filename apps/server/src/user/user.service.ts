@@ -14,7 +14,7 @@ export class UserService implements UniqueCheckInterface<string> {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private jwtService: JwtService,
-  ) { }
+  ) {}
 
   async findUniqueByField(field: string, value: string): Promise<boolean> {
     const user = await this.userModel.findOne({ [field]: value });
@@ -71,7 +71,7 @@ export class UserService implements UniqueCheckInterface<string> {
   }
 
   async saveUserDetails(userDetails: SubmitFormDto) {
-    const response = await this.userModel.create(userDetails)
-    return response
+    const response = await this.userModel.create(userDetails);
+    return response;
   }
 }

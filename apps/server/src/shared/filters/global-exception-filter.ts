@@ -30,7 +30,9 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       errorResponse = {
         success: false,
         statusCode: status,
-        error: exceptionResponse['message'] ? [exceptionResponse['message']] : [exception.message],
+        error: exceptionResponse['message']
+          ? [exceptionResponse['message']]
+          : [exception.message],
         message: exceptionResponse['error'] || exception.name,
       };
     } else if (exception?.name === 'MongoServerError') {

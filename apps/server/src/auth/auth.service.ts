@@ -11,7 +11,7 @@ export class AuthService {
   constructor(
     @Inject() private readonly userService: UserService,
     private jwtService: JwtService,
-  ) { }
+  ) {}
 
   async register(payload: RegiterDto) {
     return await this.userService.register(payload);
