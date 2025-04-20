@@ -1,9 +1,7 @@
-import Auth from "../auth"
+import Auth from "../auth";
 
 const RegisterPage = () => {
-    return (
-        <Auth mode="register" />
-    )
-}
+  return <Auth mode="register" />;
+};
 
-export default RegisterPage
+export default RegisterPage;

@@ -1,9 +1,7 @@
-import Auth from "../auth"
+import Auth from "../auth";
 
 const LoginPage = () => {
-    return (
-        <Auth mode="login" />
-    )
-}
+  return <Auth mode="login" />;
+};
 
-export default LoginPage
+export default LoginPage;

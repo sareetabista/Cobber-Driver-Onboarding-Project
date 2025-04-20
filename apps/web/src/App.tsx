@@ -1,30 +1,47 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom"
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import LoginPage from "./components/login";
 import RegisterPage from "./components/register";
+import RegistrationForm from "./components/form";
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { Toaster } from "./components/ui/sonner";
+import Protected from "./components/shared/protected";
+import Home from "./components/landing-page";
 
 const routes = createBrowserRouter([
   {
     path: "/login",
-    element: <LoginPage />
+    element: <LoginPage />,
   },
   {
     path: "/register",
-    element: <RegisterPage />
+    element: <RegisterPage />,
   },
   {
     path: "/",
     element: (
-      <div className="bg-black h-screen text-white font-semibold flex justify-center items-center">
-        hi
-      </div>
-    )
+      <Protected>
+        <Home />
+        {/* <RegistrationForm /> */}
+      </Protected>
+    ),
   },
-])
+]);
+
+const queryClient = new QueryClient();
 
 const App = () => {
   return (
     <>
-      <RouterProvider router={routes} />
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={routes} />
+        <Toaster
+          toastOptions={{
+            classNames: {
+              error: "text-red-500",
+            },
+          }}
+        />
+      </QueryClientProvider>
     </>
   );
 };
