@@ -6,7 +6,8 @@ import { RegiterDto } from '../auth/dto/register-user.dto';
 import { UniqueCheckInterface } from 'src/shared/interfaces/unique-check.interface';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { ResponseMessages } from 'src/common/constants/message.constant';
+import { ResponseMessages } from 'src/shared/constants/message.constant';
+import { SubmitFormDto } from './dto/submit-form.dto';
 
 @Injectable()
 export class UserService implements UniqueCheckInterface<string> {
@@ -66,7 +67,11 @@ export class UserService implements UniqueCheckInterface<string> {
     if (!user) {
       throw new NotFoundException([ResponseMessages.USER_NOT_FOUND]);
     }
-
     return user;
+  }
+
+  async saveUserDetails(userDetails: SubmitFormDto) {
+    const response = await this.userModel.create(userDetails);
+    return response;
   }
 }

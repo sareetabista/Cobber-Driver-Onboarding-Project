@@ -6,10 +6,10 @@ import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginDto } from './dto/login-user.dto';
 import { AuthReponseDto } from './dto/auth-response.dto';
 
-@ApiTags("Authentication")
+@ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
   @ApiBody({ type: RegiterDto })
   @ApiResponse({ status: 201, type: AuthReponseDto })

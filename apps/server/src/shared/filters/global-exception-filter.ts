@@ -27,11 +27,12 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
-
       errorResponse = {
         success: false,
         statusCode: status,
-        error: exceptionResponse['message'] || exception.message,
+        error: exceptionResponse['message']
+          ? [exceptionResponse['message']]
+          : [exception.message],
         message: exceptionResponse['error'] || exception.name,
       };
     } else if (exception?.name === 'MongoServerError') {

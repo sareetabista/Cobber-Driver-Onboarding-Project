@@ -6,6 +6,7 @@ import { User, UserSchema } from './models/user.schema';
 import { IsUniquesConstraint } from 'src/shared/validators/is-unique.validator';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { JwtStrategy } from 'src/shared/strategy/jwt.strategy';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ConfigService } from '@nestjs/config';
   controllers: [UserController],
   providers: [
     UserService,
+    JwtStrategy,
     IsUniquesConstraint,
     {
       provide: 'UniqueCheckService',
