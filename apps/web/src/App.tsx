@@ -1,7 +1,6 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import LoginPage from "./components/login";
 import RegisterPage from "./components/register";
-import RegistrationForm from "./components/form";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { Toaster } from "./components/ui/sonner";
 import Protected from "./components/shared/protected";
@@ -21,7 +20,6 @@ const routes = createBrowserRouter([
     element: (
       <Protected>
         <Home />
-        {/* <RegistrationForm /> */}
       </Protected>
     ),
   },
@@ -36,6 +34,10 @@ const App = () => {
         <RouterProvider router={routes} />
         <Toaster
           toastOptions={{
+            style: {
+              backgroundColor: "black",
+              color: "white",
+            },
             classNames: {
               error: "text-red-500",
             },
