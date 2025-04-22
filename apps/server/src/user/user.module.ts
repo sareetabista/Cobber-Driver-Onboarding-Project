@@ -7,6 +7,7 @@ import { IsUniquesConstraint } from 'src/shared/validators/is-unique.validator';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { JwtStrategy } from 'src/shared/strategy/jwt.strategy';
+import { AwsModule } from 'src/aws/aws.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { JwtStrategy } from 'src/shared/strategy/jwt.strategy';
         secret: configService.get<string>('JWT_SECRET'),
       }),
     }),
+    AwsModule,
   ],
   controllers: [UserController],
   providers: [
