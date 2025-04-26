@@ -10,6 +10,7 @@ import { ResponseMessages } from 'src/shared/constants/message.constant';
 import { SubmitFormDto } from './dto/submit-form.dto';
 import { S3Service } from 'src/aws/s3.service';
 import { FORM_STATUS } from 'src/shared/constants/user.constants';
+import { MailerService } from 'src/mailer/mailer.service';
 
 @Injectable()
 export class UserService implements UniqueCheckInterface<string> {
@@ -17,6 +18,7 @@ export class UserService implements UniqueCheckInterface<string> {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private jwtService: JwtService,
     private s3Service: S3Service,
+    private mailerService: MailerService,
   ) {}
 
   async findUniqueByField(field: string, value: string): Promise<boolean> {
@@ -45,6 +47,17 @@ export class UserService implements UniqueCheckInterface<string> {
 
     const { password, ...rest } = response.toObject();
 
+    this.mailerService.sendMail({
+      subject: 'Welcome to Cobber',
+      html: `
+            <h1>Hi, Welcome to Cobber</h1>
+            <p>We are thrilled to have you on board.</p>
+
+            <p>Complete the onboarding form to start driving with us. </p>
+            `,
+      to: [rest.email],
+    });
+
     return {
       access_token: this.jwtService.sign(rest, {
         expiresIn: '7d',
@@ -62,7 +75,7 @@ export class UserService implements UniqueCheckInterface<string> {
         expiresIn: '7d',
       }),
       success: true,
-      message: ResponseMessages.REGISTER_SUCCESS,
+      message: ResponseMessages.LOGIN_SUCCESS,
     };
   }
 
@@ -138,9 +151,11 @@ export class UserService implements UniqueCheckInterface<string> {
   async uploadSignature({
     signature,
     userid,
+    useremail,
   }: {
     signature: Express.Multer.File;
     userid: string;
+    useremail: string;
   }) {
     const [signatureUrl] = await Promise.all([
       this.s3Service.uploadFile(signature),
@@ -152,6 +167,12 @@ export class UserService implements UniqueCheckInterface<string> {
         signature: signatureUrl,
         signature_time: new Date().toISOString(),
       },
+    });
+
+    this.mailerService.sendMail({
+      html: 'Thank you for choosing Cobber, you have completed the onboarding form. You will be contacted very soon',
+      subject: 'Thank You',
+      to: [],
     });
 
     return {

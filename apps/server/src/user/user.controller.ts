@@ -71,6 +71,7 @@ export class UserController {
     return this.userService.uploadSignature({
       signature: files.signature[0],
       userid: user._id,
+      useremail: user.email,
     });
   }
 
