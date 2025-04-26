@@ -17,4 +17,8 @@ export class SubmitFormDto {
   @ApiProperty()
   @IsString()
   abn_number: string;
+
+  @ApiProperty()
+  @IsString()
+  phone: string;
 }

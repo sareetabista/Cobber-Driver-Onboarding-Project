@@ -12,6 +12,12 @@ import {
 } from "../../../ui/form";
 import { Loader2 } from "lucide-react";
 import ImagePicker from "./file-upload";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  getDriverDetails,
+  uploadDocuments,
+} from "../../../../api/services/app";
+import { useEffect } from "react";
 
 const vehicleInfoSchema = z.object({
   abn_file: z.union([
@@ -43,10 +49,38 @@ export default function VehicleInfoForm({ changeStep }: VehicleInfoFormProps) {
     resolver: zodResolver(vehicleInfoSchema),
   });
 
-  const handleFormSubmit = async (data: any) => {
-    console.log(data);
-    changeStep();
+  const { mutate } = useMutation({
+    mutationFn: uploadDocuments,
+    onSuccess: () => {
+      changeStep();
+    },
+  });
+
+  const handleFormSubmit = async (data: z.infer<typeof vehicleInfoSchema>) => {
+    const formdata = new FormData();
+    data?.abn_file instanceof File &&
+      formdata.append("abn_file", data?.abn_file);
+    data?.insurance_certificate instanceof File &&
+      formdata.append("insurance_certificate", data?.insurance_certificate);
+    data?.license instanceof File && formdata.append("license", data?.license);
+
+    mutate(formdata);
   };
+
+  const { data: userDetails } = useQuery({
+    queryKey: ["user-details"],
+    queryFn: getDriverDetails,
+  });
+
+  useEffect(() => {
+    if (userDetails) {
+      form.reset({
+        insurance_certificate: userDetails?.insurance_certificate,
+        license: userDetails?.license,
+        abn_file: userDetails?.abn_file,
+      });
+    }
+  }, [userDetails]);
 
   return (
     <Form {...form}>
@@ -64,7 +98,8 @@ export default function VehicleInfoForm({ changeStep }: VehicleInfoFormProps) {
               <FormLabel>Driver License</FormLabel>
               <FormControl>
                 <ImagePicker
-                  name="driverLicense"
+                  defaultImage={userDetails?.license}
+                  name="license"
                   onImageChange={(file) => field.onChange(file)}
                 />
               </FormControl>
@@ -81,7 +116,8 @@ export default function VehicleInfoForm({ changeStep }: VehicleInfoFormProps) {
               <FormLabel>Insurance Certificate</FormLabel>
               <FormControl>
                 <ImagePicker
-                  name="insuranceCertificate"
+                  defaultImage={userDetails?.insurance_certificate}
+                  name="insurance_certificate"
                   onImageChange={(file) => field.onChange(file)}
                 />
               </FormControl>
@@ -98,7 +134,8 @@ export default function VehicleInfoForm({ changeStep }: VehicleInfoFormProps) {
               <FormLabel>ABN Document</FormLabel>
               <FormControl>
                 <ImagePicker
-                  name="abnFile"
+                  defaultImage={userDetails?.abn_file}
+                  name="abn_file"
                   onImageChange={(file) => field.onChange(file)}
                 />
               </FormControl>

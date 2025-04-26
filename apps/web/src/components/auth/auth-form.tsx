@@ -24,7 +24,7 @@ const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
   password: z
     .string()
-    .min(6, { message: "Password must be at least 6 characters" }),
+    .min(8, { message: "Password must be at least 8 characters" }),
 });
 
 // Infer the type from the schema
@@ -48,7 +48,7 @@ export function AuthForm({
   // Handle form submission
   async function onSubmit(data: FormValues) {
     const response = await mutateAsync(data);
-    console.log(response);
+
     localStorage.setItem("token", response?.data?.access_token);
     toast("user logged in successfully!");
     navigate("/");

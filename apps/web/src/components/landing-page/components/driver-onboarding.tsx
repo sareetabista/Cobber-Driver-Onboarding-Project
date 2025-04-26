@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Card } from "../../ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs";
 import PersonalInfoForm from "./forms/personal-info-from";
-import VehicleInfoForm from "./forms/vehicle-info-form";
-import DocumentsForm from "./forms/documents-form";
+import VehicleInfoForm from "./forms/document-upload";
+import DocumentsForm from "./forms/signature-form";
 import SubmissionSummary from "./submission-summary";
 
 export type DriverData = {
@@ -39,75 +39,6 @@ export type DriverData = {
 export default function DriverOnboarding() {
   const [activeTab, setActiveTab] = useState("form");
   const [currentStep, setCurrentStep] = useState(1);
-  const [driverData, setDriverData] = useState<DriverData>({
-    personalInfo: null,
-    vehicleInfo: null,
-    documents: null,
-  });
-  const [loading, setLoading] = useState(false);
-
-  // Load saved data on component mount
-  useEffect(() => {
-    const savedData = localStorage.getItem("driverOnboardingData");
-    if (savedData) {
-      try {
-        const parsedData = JSON.parse(savedData);
-        setDriverData(parsedData);
-
-        // Determine which step to show based on saved data
-        if (parsedData.documents) {
-          setCurrentStep(4); // All steps completed
-        } else if (parsedData.vehicleInfo) {
-          setCurrentStep(3); // Up to vehicle info completed
-        } else if (parsedData.personalInfo) {
-          setCurrentStep(2); // Only personal info completed
-        }
-      } catch (error) {
-        console.error("Error parsing saved data:", error);
-        localStorage.removeItem("driverOnboardingData");
-      }
-    }
-  }, []);
-
-  // Save data to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem("driverOnboardingData", JSON.stringify(driverData));
-  }, [driverData]);
-
-  // Mock API call to save data
-  const saveData = async (step: number, data: any) => {
-    setLoading(true);
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log(`Saving data for step ${step}:`, data);
-
-      // Update driver data based on step
-      const newDriverData = { ...driverData };
-      if (step === 1) {
-        newDriverData.personalInfo = data;
-      } else if (step === 2) {
-        newDriverData.vehicleInfo = data;
-      } else if (step === 3) {
-        newDriverData.documents = data;
-      }
-
-      setDriverData(newDriverData);
-      setCurrentStep(step + 1);
-
-      // If all steps are completed, switch to summary view
-      if (step === 3) {
-        setActiveTab("summary");
-      }
-
-      return true;
-    } catch (error) {
-      console.error("Error saving data:", error);
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <Card className="overflow-hidden border-0 shadow-lg">
@@ -142,30 +73,36 @@ export default function DriverOnboarding() {
                       }`}
                   >
                     {currentStep > step ? (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-6 w-6"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
+                      <div
+                        onClick={() => {
+                          setCurrentStep(step);
+                        }}
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-6 w-6"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      </div>
                     ) : (
                       <span>{step}</span>
                     )}
                   </div>
                   <span className="mt-2 text-sm font-medium">
                     {step === 1
-                      ? "Personal Info"
+                      ? "Basic Information"
                       : step === 2
-                        ? "Vehicle Details"
-                        : "Documents"}
+                        ? "Documents"
+                        : "Agreement"}
                   </span>
                 </div>
               ))}
@@ -222,7 +159,7 @@ export default function DriverOnboarding() {
         </TabsContent>
 
         <TabsContent value="summary">
-          <SubmissionSummary driverData={driverData} />
+          <SubmissionSummary />
         </TabsContent>
       </Tabs>
     </Card>

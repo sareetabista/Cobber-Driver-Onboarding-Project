@@ -9,6 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ResponseMessages } from 'src/shared/constants/message.constant';
 import { SubmitFormDto } from './dto/submit-form.dto';
 import { S3Service } from 'src/aws/s3.service';
+import { FORM_STATUS } from 'src/shared/constants/user.constants';
 
 @Injectable()
 export class UserService implements UniqueCheckInterface<string> {
@@ -42,10 +43,10 @@ export class UserService implements UniqueCheckInterface<string> {
       password: hashedPassword,
     });
 
-    const payload = { id: response?.id ?? '', email: response?.email ?? '' };
+    const { password, ...rest } = response.toObject();
 
     return {
-      access_token: this.jwtService.sign(payload, {
+      access_token: this.jwtService.sign(rest, {
         expiresIn: '7d',
       }),
       success: true,
@@ -85,6 +86,7 @@ export class UserService implements UniqueCheckInterface<string> {
     const response = await this.userModel.findByIdAndUpdate(user_id, {
       $set: {
         ...userDetails,
+        status: FORM_STATUS.INITIATED,
         vehicleDetails: {
           name: userDetails?.vehicleDetails?.name,
           model: userDetails?.vehicleDetails?.model,
@@ -98,23 +100,35 @@ export class UserService implements UniqueCheckInterface<string> {
   async uploadDocuments({
     abn_file,
     license,
+    insurance_certificate,
     userid,
   }: {
-    abn_file: Express.Multer.File;
-    license: Express.Multer.File;
+    abn_file: Express.Multer.File | null;
+    license: Express.Multer.File | null;
+    insurance_certificate: Express.Multer.File | null;
     userid: string;
   }) {
-    const [abnResponse, licenseResponse] = await Promise.all([
-      this.s3Service.uploadFile(abn_file),
-      this.s3Service.uploadFile(license),
-    ]);
+    const [abnResponse, licenseResponse, insuranceCertificateResponse] =
+      await Promise.all([
+        abn_file ? this.s3Service.uploadFile(abn_file) : Promise.resolve(null),
+        license ? this.s3Service.uploadFile(license) : Promise.resolve(null),
+        insurance_certificate
+          ? this.s3Service.uploadFile(insurance_certificate)
+          : Promise.resolve(null),
+      ]);
 
-    await this.userModel.findByIdAndUpdate(userid, {
-      $set: {
-        abn_file: abnResponse,
-        license: licenseResponse,
-      },
-    });
+    const updateData: Record<string, any> = {};
+
+    if (abnResponse) updateData.abn_file = abnResponse;
+    if (licenseResponse) updateData.license = licenseResponse;
+    if (insuranceCertificateResponse)
+      updateData.insurance_certificate = insuranceCertificateResponse;
+
+    if (Object.keys(updateData).length > 0) {
+      await this.userModel.findByIdAndUpdate(userid, {
+        $set: updateData,
+      });
+    }
 
     return {
       message: 'Files Uploaded Successfully',
@@ -134,6 +148,7 @@ export class UserService implements UniqueCheckInterface<string> {
 
     await this.userModel.findByIdAndUpdate(userid, {
       $set: {
+        status: FORM_STATUS.COMPLETED,
         signature: signatureUrl,
         signature_time: new Date().toISOString(),
       },
@@ -160,6 +175,13 @@ export class UserService implements UniqueCheckInterface<string> {
         serializedUser?.license,
       );
       serializedUser.license = signedLicense;
+    }
+
+    if (serializedUser?.insurance_certificate) {
+      const signedInsuranceCertificate = await this.s3Service.getSignedUrl(
+        serializedUser?.insurance_certificate,
+      );
+      serializedUser.insurance_certificate = signedInsuranceCertificate;
     }
 
     if (serializedUser?.signature) {

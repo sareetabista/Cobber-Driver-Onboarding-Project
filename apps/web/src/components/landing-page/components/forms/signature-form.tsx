@@ -12,6 +12,8 @@ import {
   FormMessage,
 } from "../../../ui/form";
 import ImagePicker from "./file-upload";
+import { useMutation } from "@tanstack/react-query";
+import { uploadSignature } from "../../../../api/services/app";
 
 const documentsSchema = z.object({
   signature: z.union([
@@ -31,9 +33,19 @@ export default function DocumentsForm({ changeStep }: DocumentsFormProps) {
     resolver: zodResolver(documentsSchema),
   });
 
-  const handleFormSubmit = async (data: any) => {
-    console.log(data, "data");
-    changeStep();
+  const { mutate } = useMutation({
+    mutationFn: uploadSignature,
+    onError: (error) => {},
+    onSuccess: () => {
+      changeStep();
+    },
+  });
+
+  const handleFormSubmit = async (data: z.infer<typeof documentsSchema>) => {
+    const formdata = new FormData();
+    data?.signature instanceof File &&
+      formdata.append("signature", data.signature);
+    mutate(formdata);
   };
 
   return (
@@ -42,14 +54,14 @@ export default function DocumentsForm({ changeStep }: DocumentsFormProps) {
         className="space-y-3"
         onSubmit={form.handleSubmit(handleFormSubmit)}
       >
-        <h3 className="mb-4 text-xl font-semibold text-gray-800">Documents</h3>
+        <h3 className="mb-4 text-xl font-semibold text-gray-800">Signature</h3>
 
         <FormField
           control={form.control}
           name="signature"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Driver License</FormLabel>
+              <FormLabel>Driver Signature</FormLabel>
               <FormControl>
                 <ImagePicker
                   name="driverLicense"

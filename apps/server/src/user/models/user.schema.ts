@@ -41,6 +41,9 @@ export class User {
   license: string;
 
   @Prop()
+  insurance_certificate: string;
+
+  @Prop()
   abn_file: string;
 
   @Prop()

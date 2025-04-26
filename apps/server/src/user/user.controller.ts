@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Patch,
   Post,
   UploadedFiles,
   UseGuards,
@@ -20,7 +21,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @ApiBody({ type: SubmitFormDto })
-  @Post('/submit-form')
+  @Patch('/submit-form')
   @UseGuards(AuthGuard('jwt'))
   async saveUserDetails(
     @Body() userDetails: SubmitFormDto,
@@ -33,24 +34,33 @@ export class UserController {
   }
 
   @ApiBody({ type: DocumentDto })
-  @Post('/upload-doc')
+  @Patch('/upload-doc')
   @UseInterceptors(
-    FileFieldsInterceptor([{ name: 'abn_file' }, { name: 'license' }]),
+    FileFieldsInterceptor([
+      { name: 'abn_file' },
+      { name: 'license' },
+      { name: 'insurance_certificate' },
+    ]),
   )
   @UseGuards(AuthGuard('jwt'))
   async uploadDocuments(
     @UploadedFiles()
-    files: { abn_file: Express.Multer.File[]; license: Express.Multer.File[] },
+    files: {
+      abn_file?: Express.Multer.File[];
+      license?: Express.Multer.File[];
+      insurance_certificate?: Express.Multer.File[];
+    },
     @CurrentUser() user: any,
   ) {
     return this.userService.uploadDocuments({
-      abn_file: files.abn_file[0],
-      license: files.abn_file[0],
+      abn_file: files?.abn_file?.[0] ?? null,
+      license: files?.license?.[0] ?? null,
+      insurance_certificate: files?.insurance_certificate?.[0] ?? null,
       userid: user._id,
     });
   }
 
-  @Post('/upload-signature')
+  @Patch('/upload-signature')
   @UseInterceptors(FileFieldsInterceptor([{ name: 'signature' }]))
   @UseGuards(AuthGuard('jwt'))
   async uploadSignature(
