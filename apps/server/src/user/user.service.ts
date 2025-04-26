@@ -28,6 +28,13 @@ export class UserService implements UniqueCheckInterface<string> {
     return bcrypt.hash(password, saltRounds);
   }
 
+  async comparePassword(
+    password: string,
+    hashedPassword: string,
+  ): Promise<boolean> {
+    return bcrypt.compare(password, hashedPassword);
+  }
+
   async register(body: RegiterDto) {
     const hashedPassword = await this.hashPassword(body.password);
     const response = await this.userModel.create({
@@ -47,13 +54,7 @@ export class UserService implements UniqueCheckInterface<string> {
   }
 
   async login(body: RegiterDto) {
-    const hashedPassword = await this.hashPassword(body.password);
-    const response = await this.userModel.create({
-      ...body,
-      password: hashedPassword,
-    });
-
-    const payload = { id: response?.id, email: response?.email };
+    const payload = { user: body };
 
     return {
       access_token: this.jwtService.sign(payload, {
@@ -65,15 +66,32 @@ export class UserService implements UniqueCheckInterface<string> {
   }
 
   async getUserByEmail(email: string) {
-    const user = await this.userModel.findOne({ email: email });
+    const user = await this.userModel
+      .findOne({ email: email })
+      .select('+password');
     if (!user) {
       throw new NotFoundException([ResponseMessages.USER_NOT_FOUND]);
     }
     return user;
   }
 
-  async saveUserDetails(userDetails: SubmitFormDto) {
-    const response = await this.userModel.create(userDetails);
+  async saveUserDetails({
+    userDetails,
+    user_id,
+  }: {
+    userDetails: SubmitFormDto;
+    user_id: string;
+  }) {
+    const response = await this.userModel.findByIdAndUpdate(user_id, {
+      $set: {
+        ...userDetails,
+        vehicleDetails: {
+          name: userDetails?.vehicleDetails?.name,
+          model: userDetails?.vehicleDetails?.model,
+          number: userDetails?.vehicleDetails?.number,
+        },
+      },
+    });
     return response;
   }
 
@@ -91,7 +109,7 @@ export class UserService implements UniqueCheckInterface<string> {
       this.s3Service.uploadFile(license),
     ]);
 
-    this.userModel.findByIdAndUpdate(userid, {
+    await this.userModel.findByIdAndUpdate(userid, {
       $set: {
         abn_file: abnResponse,
         license: licenseResponse,
@@ -101,5 +119,56 @@ export class UserService implements UniqueCheckInterface<string> {
     return {
       message: 'Files Uploaded Successfully',
     };
+  }
+
+  async uploadSignature({
+    signature,
+    userid,
+  }: {
+    signature: Express.Multer.File;
+    userid: string;
+  }) {
+    const [signatureUrl] = await Promise.all([
+      this.s3Service.uploadFile(signature),
+    ]);
+
+    await this.userModel.findByIdAndUpdate(userid, {
+      $set: {
+        signature: signatureUrl,
+        signature_time: new Date().toISOString(),
+      },
+    });
+
+    return {
+      message: 'Signature Uploaded Successfully',
+    };
+  }
+
+  async getUserDetails({ userid }: { userid: string }) {
+    const user = await this.userModel.findById(userid);
+    let serializedUser = user?.toObject();
+
+    if (serializedUser?.abn_file) {
+      const signedAbnFile = await this.s3Service.getSignedUrl(
+        serializedUser?.abn_file,
+      );
+      serializedUser.abn_file = signedAbnFile;
+    }
+
+    if (serializedUser?.license) {
+      const signedLicense = await this.s3Service.getSignedUrl(
+        serializedUser?.license,
+      );
+      serializedUser.license = signedLicense;
+    }
+
+    if (serializedUser?.signature) {
+      const signedSignature = await this.s3Service.getSignedUrl(
+        serializedUser?.signature,
+      );
+      serializedUser.signature = signedSignature;
+    }
+
+    return serializedUser;
   }
 }

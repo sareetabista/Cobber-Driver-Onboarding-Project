@@ -12,7 +12,7 @@ export class SubmitFormDto {
   @IsObject()
   @ValidateNested()
   @Type(() => VehicleDetailsDto)
-  vehicle: VehicleDetailsDto;
+  vehicleDetails: VehicleDetailsDto;
 
   @ApiProperty()
   @IsString()

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Post,
   UploadedFiles,
   UseGuards,
@@ -13,7 +14,6 @@ import { AuthGuard } from '@nestjs/passport';
 import { DocumentDto } from './dto/documents.dto';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
-import { User } from './models/user.schema';
 
 @Controller('user')
 export class UserController {
@@ -22,8 +22,14 @@ export class UserController {
   @ApiBody({ type: SubmitFormDto })
   @Post('/submit-form')
   @UseGuards(AuthGuard('jwt'))
-  async saveUserDetails(@Body() userDetails: SubmitFormDto) {
-    return await this.userService.saveUserDetails(userDetails);
+  async saveUserDetails(
+    @Body() userDetails: SubmitFormDto,
+    @CurrentUser() currentUser: any,
+  ) {
+    return await this.userService.saveUserDetails({
+      user_id: currentUser?._id,
+      userDetails: userDetails,
+    });
   }
 
   @ApiBody({ type: DocumentDto })
@@ -37,11 +43,30 @@ export class UserController {
     files: { abn_file: Express.Multer.File[]; license: Express.Multer.File[] },
     @CurrentUser() user: any,
   ) {
-    console.log(user);
     return this.userService.uploadDocuments({
       abn_file: files.abn_file[0],
       license: files.abn_file[0],
-      userid: user.id,
+      userid: user._id,
     });
+  }
+
+  @Post('/upload-signature')
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'signature' }]))
+  @UseGuards(AuthGuard('jwt'))
+  async uploadSignature(
+    @UploadedFiles()
+    files: { signature: Express.Multer.File[] },
+    @CurrentUser() user: any,
+  ) {
+    return this.userService.uploadSignature({
+      signature: files.signature[0],
+      userid: user._id,
+    });
+  }
+
+  @Get('/driver-details')
+  @UseGuards(AuthGuard('jwt'))
+  async getDriverDetails(@CurrentUser() currentUser: any) {
+    return await this.userService.getUserDetails({ userid: currentUser?._id });
   }
 }
