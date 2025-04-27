@@ -3,7 +3,6 @@ import {
   Controller,
   Get,
   Patch,
-  Post,
   UploadedFiles,
   UseGuards,
   UseInterceptors,

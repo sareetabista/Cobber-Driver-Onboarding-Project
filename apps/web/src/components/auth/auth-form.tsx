@@ -51,7 +51,7 @@ export function AuthForm({
 
     localStorage.setItem("token", response?.data?.access_token);
     toast("user logged in successfully!");
-    navigate("/");
+    location.href = "/";
   }
 
   const { mutateAsync, isPending: isLoading } = useMutation({

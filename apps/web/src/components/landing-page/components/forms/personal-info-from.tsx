@@ -23,7 +23,7 @@ import { useEffect } from "react";
 
 const personalInfoSchema = z.object({
   fullname: z.string().min(3, "Full name is required"),
-  phone: z.string().min(10, "Valid phone number is required"),
+  phone: z.string().min(10, "Valid number must contain 10 numbers"),
   abn_number: z.string().min(1, "Abn Number is required"),
   vehicleDetails: z.object({
     name: z.string().min(1, "Vehicle Name is required"),
@@ -48,14 +48,13 @@ export default function PersonalInfoForm({ changeStep }: props) {
         toast.error(error);
       });
     },
-    onSuccess: (response) => {
-      console.log(response);
+    onSuccess: () => {
+      changeStep();
     },
   });
 
   const submitHandler = (data: any) => {
     mutate(data);
-    changeStep();
   };
 
   const { data: userDetails } = useQuery({

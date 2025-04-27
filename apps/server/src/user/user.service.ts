@@ -59,9 +59,12 @@ export class UserService implements UniqueCheckInterface<string> {
     });
 
     return {
-      access_token: this.jwtService.sign(rest, {
-        expiresIn: '7d',
-      }),
+      access_token: this.jwtService.sign(
+        { user: rest },
+        {
+          expiresIn: '7d',
+        },
+      ),
       success: true,
       message: ResponseMessages.REGISTER_SUCCESS,
     };
@@ -161,18 +164,19 @@ export class UserService implements UniqueCheckInterface<string> {
       this.s3Service.uploadFile(signature),
     ]);
 
+    this.mailerService.sendMail({
+      html: 'Thank you for choosing Cobber, you have completed the onboarding form. You will be contacted very soon',
+      subject: 'Thank You',
+      to: [useremail],
+    });
+
     await this.userModel.findByIdAndUpdate(userid, {
       $set: {
         status: FORM_STATUS.COMPLETED,
         signature: signatureUrl,
         signature_time: new Date().toISOString(),
+        completed_mail_sent: true,
       },
-    });
-
-    this.mailerService.sendMail({
-      html: 'Thank you for choosing Cobber, you have completed the onboarding form. You will be contacted very soon',
-      subject: 'Thank You',
-      to: [],
     });
 
     return {
@@ -213,5 +217,15 @@ export class UserService implements UniqueCheckInterface<string> {
     }
 
     return serializedUser;
+  }
+
+  async getUsersForEmail() {
+    const users = await this.userModel
+      .find({
+        reminder_mail_count: { $lt: 3 },
+        status: { $in: [FORM_STATUS.INITIATED, FORM_STATUS.NOT_STARTED] },
+      })
+      .exec();
+    return users;
   }
 }
