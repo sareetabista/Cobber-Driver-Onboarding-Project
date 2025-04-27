@@ -8,6 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { JwtStrategy } from 'src/shared/strategy/jwt.strategy';
 import { AwsModule } from 'src/aws/aws.module';
+import { MailerModule } from 'src/mailer/mailer.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { AwsModule } from 'src/aws/aws.module';
       }),
     }),
     AwsModule,
+    MailerModule,
   ],
   controllers: [UserController],
   providers: [

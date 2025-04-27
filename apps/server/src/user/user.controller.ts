@@ -1,7 +1,8 @@
 import {
   Body,
   Controller,
-  Post,
+  Get,
+  Patch,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
@@ -13,35 +14,69 @@ import { AuthGuard } from '@nestjs/passport';
 import { DocumentDto } from './dto/documents.dto';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
-import { User } from './models/user.schema';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @ApiBody({ type: SubmitFormDto })
-  @Post('/submit-form')
+  @Patch('/submit-form')
   @UseGuards(AuthGuard('jwt'))
-  async saveUserDetails(@Body() userDetails: SubmitFormDto) {
-    return await this.userService.saveUserDetails(userDetails);
+  async saveUserDetails(
+    @Body() userDetails: SubmitFormDto,
+    @CurrentUser() currentUser: any,
+  ) {
+    return await this.userService.saveUserDetails({
+      user_id: currentUser?._id,
+      userDetails: userDetails,
+    });
   }
 
   @ApiBody({ type: DocumentDto })
-  @Post('/upload-doc')
+  @Patch('/upload-doc')
   @UseInterceptors(
-    FileFieldsInterceptor([{ name: 'abn_file' }, { name: 'license' }]),
+    FileFieldsInterceptor([
+      { name: 'abn_file' },
+      { name: 'license' },
+      { name: 'insurance_certificate' },
+    ]),
   )
   @UseGuards(AuthGuard('jwt'))
   async uploadDocuments(
     @UploadedFiles()
-    files: { abn_file: Express.Multer.File[]; license: Express.Multer.File[] },
+    files: {
+      abn_file?: Express.Multer.File[];
+      license?: Express.Multer.File[];
+      insurance_certificate?: Express.Multer.File[];
+    },
     @CurrentUser() user: any,
   ) {
-    console.log(user);
     return this.userService.uploadDocuments({
-      abn_file: files.abn_file[0],
-      license: files.abn_file[0],
-      userid: user.id,
+      abn_file: files?.abn_file?.[0] ?? null,
+      license: files?.license?.[0] ?? null,
+      insurance_certificate: files?.insurance_certificate?.[0] ?? null,
+      userid: user._id,
     });
+  }
+
+  @Patch('/upload-signature')
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'signature' }]))
+  @UseGuards(AuthGuard('jwt'))
+  async uploadSignature(
+    @UploadedFiles()
+    files: { signature: Express.Multer.File[] },
+    @CurrentUser() user: any,
+  ) {
+    return this.userService.uploadSignature({
+      signature: files.signature[0],
+      userid: user._id,
+      useremail: user.email,
+    });
+  }
+
+  @Get('/driver-details')
+  @UseGuards(AuthGuard('jwt'))
+  async getDriverDetails(@CurrentUser() currentUser: any) {
+    return await this.userService.getUserDetails({ userid: currentUser?._id });
   }
 }

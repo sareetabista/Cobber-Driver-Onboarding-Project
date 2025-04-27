@@ -21,12 +21,12 @@ export class S3Service {
       endpoint: 'http://localhost:4566',
       forcePathStyle: true,
       credentials: {
-        accessKeyId: 'test',
-        secretAccessKey: 'test',
+        accessKeyId: configService.get('AWS_ACCESS_KEY') as string,
+        secretAccessKey: configService.get('AWS_SECRET_KEY') as string,
       },
     });
     // this.bucket = this.configService.get("AWS_S3_BUCKET_NAME")
-    this.bucket = 'my-test-bucket';
+    this.bucket = configService.get('BUCKET_NAME') as string;
   }
 
   async uploadFile(file: Express.Multer.File): Promise<string> {

@@ -31,7 +31,7 @@ export class User {
   @Prop({ type: Types.ObjectId, ref: 'Vehicle' })
   vehicleDetails: Types.ObjectId;
 
-  @Prop({ required: true, minlength: 8 })
+  @Prop({ required: true, minlength: 8, select: false })
   password: string;
 
   @Prop()
@@ -41,13 +41,16 @@ export class User {
   license: string;
 
   @Prop()
+  insurance_certificate: string;
+
+  @Prop()
   abn_file: string;
 
   @Prop()
   signature: string;
 
   @Prop()
-  signatiure_time: string;
+  signature_time: string;
 
   @Prop({
     enum: [

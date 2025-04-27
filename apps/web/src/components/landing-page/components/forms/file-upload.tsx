@@ -20,7 +20,7 @@ const ImagePicker = ({ defaultImage, name, onImageChange }: props) => {
         setImage(reader.result as string);
       };
       reader.readAsDataURL(file);
-      console.log(file);
+
       onImageChange(file);
     }
   };
