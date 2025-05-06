@@ -55,9 +55,9 @@ export default function DriverOnboarding() {
         <TabsContent value="form" className="p-0">
           <div className="bg-gradient-to-r from-green-600 to-emerald-500 p-6 text-white">
             <h2 className="text-2xl font-bold">Driver Registration</h2>
-            <p className="mt-2 opacity-90">
+            <div className="mt-2 opacity-90">
               Complete the following steps to join our driver network
-            </p>
+            </div>
 
             <div className="mt-6 flex justify-between">
               {[1, 2, 3].map((step) => (

@@ -12,8 +12,14 @@ import {
   FormMessage,
 } from "../../../ui/form";
 import ImagePicker from "./file-upload";
-import { useMutation } from "@tanstack/react-query";
-import { uploadSignature } from "../../../../api/services/app";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  getDriverDetails,
+  uploadSignature,
+} from "../../../../api/services/app";
+import { data } from "./aggrement-terms";
+import { Checkbox } from "../../../../components/ui/checkbox";
+import { useEffect } from "react";
 
 const documentsSchema = z.object({
   signature: z.union([
@@ -22,6 +28,7 @@ const documentsSchema = z.object({
       message: "Image must be less than 3MB",
     }),
   ]),
+  terms_condition: z.boolean(),
 });
 
 type DocumentsFormProps = {
@@ -33,7 +40,7 @@ export default function DocumentsForm({ changeStep }: DocumentsFormProps) {
     resolver: zodResolver(documentsSchema),
   });
 
-  const { mutate } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: uploadSignature,
     onError: (error) => {},
     onSuccess: () => {
@@ -43,10 +50,26 @@ export default function DocumentsForm({ changeStep }: DocumentsFormProps) {
 
   const handleFormSubmit = async (data: z.infer<typeof documentsSchema>) => {
     const formdata = new FormData();
-    data?.signature instanceof File &&
+    if (data?.signature instanceof File) {
       formdata.append("signature", data.signature);
-    mutate(formdata);
+      mutate(formdata);
+    } else {
+      changeStep();
+    }
   };
+
+  const { data: userDetails } = useQuery({
+    queryKey: ["user-details"],
+    queryFn: getDriverDetails,
+  });
+
+  useEffect(() => {
+    if (userDetails) {
+      form.reset({
+        signature: userDetails?.signature,
+      });
+    }
+  }, [userDetails]);
 
   return (
     <Form {...form}>
@@ -54,7 +77,14 @@ export default function DocumentsForm({ changeStep }: DocumentsFormProps) {
         className="space-y-3"
         onSubmit={form.handleSubmit(handleFormSubmit)}
       >
-        <h3 className="mb-4 text-xl font-semibold text-gray-800">Signature</h3>
+        <h3 className="mb-4 text-xl font-semibold text-gray-800">
+          Terms and Conditions
+        </h3>
+
+        <div
+          dangerouslySetInnerHTML={{ __html: data }}
+          className="h-80 shadow rounded py-3 px-1 overflow-auto"
+        ></div>
 
         <FormField
           control={form.control}
@@ -64,6 +94,7 @@ export default function DocumentsForm({ changeStep }: DocumentsFormProps) {
               <FormLabel>Driver Signature</FormLabel>
               <FormControl>
                 <ImagePicker
+                  defaultImage={userDetails?.signature}
                   name="driverLicense"
                   onImageChange={(file) => field.onChange(file)}
                 />
@@ -73,9 +104,32 @@ export default function DocumentsForm({ changeStep }: DocumentsFormProps) {
           )}
         />
 
+        <FormField
+          control={form.control}
+          name="terms_condition"
+          render={({ field }) => (
+            <FormItem>
+              <div className="flex gap-2">
+                <FormControl>
+                  <Checkbox
+                    onCheckedChange={(val) => {
+                      field.onChange(val);
+                    }}
+                  />
+                </FormControl>
+                <FormLabel>
+                  By continuing, you agree to our Terms and Conditions and
+                  Privacy Policy.
+                </FormLabel>
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <div className="mt-6 flex justify-end">
           <Button type="submit" className="bg-teal-500 hover:bg-teal-600">
-            {false ? (
+            {isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Saving...

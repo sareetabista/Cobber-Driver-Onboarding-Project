@@ -1,6 +1,7 @@
 import {
   DeleteObjectCommand,
   DeleteObjectCommandInput,
+  GetObjectCommand,
   PutObjectCommand,
   PutObjectCommandInput,
   S3Client,
@@ -17,9 +18,7 @@ export class S3Service {
 
   constructor(private configService: ConfigService) {
     this.s3Client = new S3Client({
-      region: 'us-east-1',
-      endpoint: 'http://localhost:4566',
-      forcePathStyle: true,
+      region: 'ap-southeast-2',
       credentials: {
         accessKeyId: configService.get('AWS_ACCESS_KEY') as string,
         secretAccessKey: configService.get('AWS_SECRET_KEY') as string,
@@ -57,9 +56,11 @@ export class S3Service {
   }
 
   async getSignedUrl(key: string): Promise<string> {
-    const command = new PutObjectCommand({
+    const command = new GetObjectCommand({
       Bucket: this.bucket,
       Key: key,
+
+      // ResponseContentType: 'application/octet-stream',
       // ContentType: "application/octet-stream"
     });
 
