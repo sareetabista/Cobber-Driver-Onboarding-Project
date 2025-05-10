@@ -1,6 +1,5 @@
 import { User } from "@/types";
 import axiosInstance from "../instance";
-import { AxiosResponse } from "axios";
 
 export interface BasicDetailsFormInterface {
   fullname: string;
@@ -9,8 +8,15 @@ export interface BasicDetailsFormInterface {
     name: string;
     number: string;
     model: string;
+    type: string;
+    license_type: string;
   };
   abn_number: string;
+  fair_pay: string;
+  hours_commitment: string;
+  days_commitment: string;
+  willing_to_move_large_goods: string;
+  start_date: string;
 }
 
 export const basicDetailsForm = async (payload: BasicDetailsFormInterface) => {

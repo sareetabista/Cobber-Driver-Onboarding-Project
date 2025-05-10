@@ -11,6 +11,8 @@ export interface VehicleDetails {
   name: string;
   model: string;
   number: string;
+  type: string;
+  license_type: string;
 }
 
 export interface User {
@@ -32,6 +34,12 @@ export interface User {
   signature_time: string; // ISO date string
   phone: string;
   insurance_certificate: string; // filename
+  willing_to_move_large_goods: boolean;
+  address: string;
+  fair_pay: string;
+  hours_commitment: string;
+  days_commitment: string;
+  start_date: string;
 }
 
 export interface BaseAxiosErrorFormat extends AxiosError<BaseErrorFormat> {}

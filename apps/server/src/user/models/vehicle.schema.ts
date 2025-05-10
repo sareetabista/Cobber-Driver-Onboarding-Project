@@ -14,6 +14,12 @@ export class Vehicle {
 
   @Prop({ type: Types.ObjectId, ref: 'User' })
   userId: Types.ObjectId;
+
+  @Prop({ required: true })
+  type: string;
+
+  @Prop({ required: true })
+  license_type: string;
 }
 
 export const VehicleDetailsSchema = SchemaFactory.createForClass(Vehicle);

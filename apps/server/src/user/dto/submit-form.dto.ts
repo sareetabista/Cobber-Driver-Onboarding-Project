@@ -9,6 +9,10 @@ export class SubmitFormDto {
   fullname: string;
 
   @ApiProperty()
+  @IsString()
+  address: string;
+
+  @ApiProperty()
   @IsObject()
   @ValidateNested()
   @Type(() => VehicleDetailsDto)
@@ -21,4 +25,24 @@ export class SubmitFormDto {
   @ApiProperty()
   @IsString()
   phone: string;
+
+  @ApiProperty()
+  @IsString()
+  fair_pay: string;
+
+  @ApiProperty()
+  @IsString()
+  hours_commitment: string;
+
+  @ApiProperty()
+  @IsString()
+  days_commitment: string;
+
+  @ApiProperty()
+  @IsString()
+  willing_to_move_large_goods: string;
+
+  @ApiProperty()
+  @IsString()
+  start_date: string;
 }

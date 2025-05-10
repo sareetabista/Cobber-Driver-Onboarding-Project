@@ -22,12 +22,17 @@ import { Checkbox } from "../../../../components/ui/checkbox";
 import { useEffect } from "react";
 
 const documentsSchema = z.object({
-  signature: z.union([
-    z.string().url({ message: "Image must be a valid URL" }),
-    z.instanceof(File).refine((file) => file.size <= 3 * 1024 * 1024, {
-      message: "Image must be less than 3MB",
-    }),
-  ]),
+  signature: z.union(
+    [
+      z
+        .string({ message: "Signature is required" })
+        .url({ message: "Image must be a valid URL" }),
+      z.instanceof(File).refine((file) => file.size <= 3 * 1024 * 1024, {
+        message: "Image must be less than 3MB",
+      }),
+    ],
+    { message: "Signature is required" },
+  ),
   terms_condition: z.boolean(),
 });
 
@@ -81,28 +86,36 @@ export default function DocumentsForm({ changeStep }: DocumentsFormProps) {
           Terms and Conditions
         </h3>
 
-        <div
-          dangerouslySetInnerHTML={{ __html: data }}
-          className="h-80 shadow rounded py-3 px-1 overflow-auto"
-        ></div>
+        <div className="h-[380px] shadow rounded overflow-auto">
+          <div
+            dangerouslySetInnerHTML={{ __html: data }}
+            className="  py-3 px-1"
+          ></div>
 
-        <FormField
-          control={form.control}
-          name="signature"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Driver Signature</FormLabel>
-              <FormControl>
-                <ImagePicker
-                  defaultImage={userDetails?.signature}
-                  name="driverLicense"
-                  onImageChange={(file) => field.onChange(file)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="signature"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Driver Signature</FormLabel>
+                <FormControl>
+                  <ImagePicker
+                    defaultImage={userDetails?.signature}
+                    name="driverLicense"
+                    onImageChange={(file) => field.onChange(file)}
+                  />
+                </FormControl>
+                {/* <FormMessage /> */}
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {form.formState?.errors?.signature && (
+          <div className="text-red-600 text-sm">
+            {form?.formState?.errors?.signature?.message}
+          </div>
+        )}
 
         <FormField
           control={form.control}
@@ -128,7 +141,11 @@ export default function DocumentsForm({ changeStep }: DocumentsFormProps) {
         />
 
         <div className="mt-6 flex justify-end">
-          <Button type="submit" className="bg-teal-500 hover:bg-teal-600">
+          <Button
+            disabled={isPending}
+            type="submit"
+            className="bg-green-600 hover:bg-green-700"
+          >
             {isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

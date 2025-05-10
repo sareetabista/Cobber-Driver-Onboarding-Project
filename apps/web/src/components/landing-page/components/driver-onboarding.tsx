@@ -111,7 +111,10 @@ export default function DriverOnboarding() {
 
           <div className="p-6">
             {currentStep === 1 && (
-              <PersonalInfoForm changeStep={() => setCurrentStep(2)} />
+              <PersonalInfoForm
+                currentStep={currentStep}
+                changeStep={() => setCurrentStep(2)}
+              />
             )}
 
             {currentStep === 2 && (

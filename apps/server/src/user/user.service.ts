@@ -107,7 +107,11 @@ export class UserService implements UniqueCheckInterface<string> {
           name: userDetails?.vehicleDetails?.name,
           model: userDetails?.vehicleDetails?.model,
           number: userDetails?.vehicleDetails?.number,
+          type: userDetails?.vehicleDetails?.type,
+          license_type: userDetails?.vehicleDetails?.license_type,
         },
+        willing_to_move_large_goods:
+          userDetails?.willing_to_move_large_goods === 'yes' ? true : false,
       },
     });
     return response;

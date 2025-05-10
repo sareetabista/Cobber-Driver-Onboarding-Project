@@ -49,7 +49,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         success: false,
         statusCode: status,
         message: 'Validation Failed!',
-        error: exception.message,
+        error: [exception.message],
       };
     }
     return response.status(status).json(errorResponse);
