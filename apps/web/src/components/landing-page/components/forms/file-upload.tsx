@@ -87,6 +87,7 @@ const ImagePicker = ({ defaultImage, name, onImageChange }: props) => {
         )}
       </label>
       <input
+        accept=".png,.jpg,.jpeg"
         id={name}
         type="file"
         onChange={handleImageChange}

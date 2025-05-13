@@ -49,7 +49,7 @@ export default function VehicleInfoForm({ changeStep }: VehicleInfoFormProps) {
     resolver: zodResolver(vehicleInfoSchema),
   });
 
-  const { mutate } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: uploadDocuments,
     onSuccess: () => {
       changeStep();
@@ -145,8 +145,12 @@ export default function VehicleInfoForm({ changeStep }: VehicleInfoFormProps) {
         />
 
         <div className="mt-6 flex justify-end">
-          <Button type="submit" className="bg-teal-500 hover:bg-teal-600">
-            {false ? (
+          <Button
+            disabled={isPending}
+            type="submit"
+            className="bg-green-600 hover:bg-green-700"
+          >
+            {isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Saving...

@@ -24,7 +24,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
         <span className="hidden text-xl font-bold text-gray-900 md:inline-block">
-          DriverPortal
+          Driver Onboarding Portal
         </span>
 
         {/* Mobile menu */}

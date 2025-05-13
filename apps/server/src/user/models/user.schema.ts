@@ -28,6 +28,9 @@ export class User {
   })
   phone: string;
 
+  @Prop()
+  address: string;
+
   @Prop({ type: Types.ObjectId, ref: 'Vehicle' })
   vehicleDetails: Types.ObjectId;
 
@@ -77,6 +80,23 @@ export class User {
     default: false,
   })
   completed_mail_sent: boolean;
+
+  @Prop()
+  fair_pay: number;
+
+  @Prop()
+  hours_commitment: number;
+
+  @Prop()
+  days_commitment: number;
+
+  @Prop({
+    type: Date,
+  })
+  start_date: Date;
+
+  @Prop()
+  willing_to_move_large_goods: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
